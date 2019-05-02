@@ -107,3 +107,14 @@ venv.bak/
 
 # IDE
 .idea/*
+
+# Instabot
+blacklist.txt
+comments.txt
+followed.txt
+friends.txt
+neverdieone.checkpoint
+skipped.txt
+unfollowed.txt
+whitelist.txt
+config/*
