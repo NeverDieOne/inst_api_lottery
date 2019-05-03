@@ -8,14 +8,25 @@ from pprint import pprint
 load_dotenv()
 
 
+# TODO add any/all
 def is_user_exist(username) -> bool:
     if bot.get_user_id_from_username(username):
         return True
     return False
 
 
-def get_marked_users(comment) -> list:
-    return re.findall(r"(?:@)([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)", comment)
+# TODO add new name
+def get_users_who_marked_smb(media_id):
+    comments = bot.get_media_comments_all(media_id)
+    result = []
+
+    for comment in comments:
+        marked_users = re.findall(r"(?:@)([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)",
+                                  comment['text'])
+        for user in marked_users:
+            if is_user_exist(user):
+                result.append(str(comment['user_id']))
+    return result
 
 
 if __name__ == '__main__':
@@ -24,7 +35,12 @@ if __name__ == '__main__':
 
     link_for_post = 'https://www.instagram.com/p/BtON034lPhu/'
     media_id = bot.get_media_id_from_link(link_for_post)
-    comments = bot.get_media_comments_all(media_id)
+    media_owner = bot.get_media_owner(media_id)
 
-    for comment in comments:
-        print(f'{comment["user"]["pk"]} - {get_marked_users(comment["text"])}')
+    users_who_marked_smb = get_users_who_marked_smb(media_id)
+    likers = bot.get_media_likers(media_id)
+    followers = bot.get_user_followers(media_owner)
+
+    uniq_users = set(users_who_marked_smb).intersection(set(likers)).intersection(set(followers))
+
+    print(len(uniq_users))
