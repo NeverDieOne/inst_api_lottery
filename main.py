@@ -18,15 +18,20 @@ def is_user_exist(username) -> bool:
 # TODO add new name
 def get_users_who_marked_smb(media_id):
     comments = bot.get_media_comments_all(media_id)
-    result = []
+    users = []
 
     for comment in comments:
+        if str(comment['user_id']) in users:
+            continue
+
         marked_users = re.findall(r"(?:@)([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)",
                                   comment['text'])
-        for user in marked_users:
-            if is_user_exist(user):
-                result.append(str(comment['user_id']))
-    return result
+        if marked_users:
+            for user in marked_users:
+                if is_user_exist(user):
+                    users.append(str(comment['user_id']))
+
+    return users
 
 
 if __name__ == '__main__':
@@ -38,9 +43,11 @@ if __name__ == '__main__':
     media_owner = bot.get_media_owner(media_id)
 
     users_who_marked_smb = get_users_who_marked_smb(media_id)
+
     likers = bot.get_media_likers(media_id)
     followers = bot.get_user_followers(media_owner)
 
     uniq_users = set(users_who_marked_smb).intersection(set(likers)).intersection(set(followers))
 
     print(len(uniq_users))
+    pprint(uniq_users)
