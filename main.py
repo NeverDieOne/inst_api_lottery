@@ -7,7 +7,7 @@ import argparse
 
 
 def is_user_exist(username):
-    return all([bot.get_user_id_from_username(username)])
+    return bool(bot.get_user_id_from_username(username))
 
 
 def get_users_who_marked_smb(media_id):
@@ -17,6 +17,8 @@ def get_users_who_marked_smb(media_id):
     for comment in comments:
         if str(comment['user_id']) in users:
             continue
+
+        # https://blog.jstassen.com/2016/03/code-regex-for-instagram-username-and-hashtags/
         marked_users = re.findall(r"(?:@)([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)",
                                   comment['text'])
         if marked_users:
