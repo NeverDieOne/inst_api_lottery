@@ -12,7 +12,7 @@ def is_user_exist(username):
 
 def get_users_who_marked_smb(media_id):
     comments = bot.get_media_comments_all(media_id)
-    users = set()
+    users_who_marked_smb = set()
 
     for comment in comments:
         # https://blog.jstassen.com/2016/03/code-regex-for-instagram-username-and-hashtags/
@@ -22,8 +22,8 @@ def get_users_who_marked_smb(media_id):
             continue
         for user in marked_users:
             if is_user_exist(user):
-                users.add(str(comment['user_id']))
-    return users
+                users_who_marked_smb.add(str(comment['user_id']))
+    return list(users_who_marked_smb)
 
 
 if __name__ == '__main__':
@@ -44,7 +44,9 @@ if __name__ == '__main__':
     likers = bot.get_media_likers(media_id)
     followers = bot.get_user_followers(media_owner)
 
-    uniq_users = markeds.intersection(set(likers)).intersection(set(followers))
-    winner = random.choice(list(uniq_users))
+    uniq_users = {uniq_user for uniq_user in (markeds + likers + followers)}
+    users = [user for user in uniq_users if all([user in markeds, user in likers, user in followers])]
+
+    winner = random.choice(users)
     winner_username = bot.get_user_info(int(winner))['username']
     print(f"Winner is {winner}: {winner_username}")
